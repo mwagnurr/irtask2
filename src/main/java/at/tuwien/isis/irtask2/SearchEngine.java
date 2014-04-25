@@ -1,4 +1,4 @@
-package irsucks;
+package at.tuwien.isis.irtask2;
 
 import java.io.IOException;
 import java.nio.file.Path;

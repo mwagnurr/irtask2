@@ -1,4 +1,4 @@
-package irsucks;
+package at.tuwien.isis.irtask2;
 
 
 
