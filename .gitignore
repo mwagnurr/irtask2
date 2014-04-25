@@ -1,0 +1,40 @@
+# download collection seperately plx 
+collection/
+
+index
+
+**/target/
+*.orig
+
+# SpringIDE-specific
+.springBeans 
+
+#__eclipse gitignore template__
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+
