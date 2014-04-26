@@ -3,19 +3,16 @@ package at.tuwien.isis.irtask2;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
 import java.util.Scanner;
-
 
 public class SearchEngine {
 
-	public SearchEngine(){
-		
+	public SearchEngine() {
+
 	}
-	
-	public void searchSimilarDocuments(String inputFilePath, String indexFilePath){
-		
+
+	public void searchSimilarDocuments(String inputFilePath, String indexFilePath) {
+
 		Path path = Paths.get(inputFilePath);
 		try {
 			Scanner scanner = new Scanner(path);
@@ -26,8 +23,8 @@ public class SearchEngine {
 				String line = scanner.nextLine();
 
 				System.out.println("query: " + line);
-				
-				//TODO process
+
+				// TODO process
 
 				topicNr++;
 			}

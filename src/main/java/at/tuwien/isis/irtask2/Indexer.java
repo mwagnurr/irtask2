@@ -18,62 +18,58 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 public class Indexer {
-	private IndexWriter indexWriter;
 
-	public Indexer() {
+	private IndexWriter indexWriter;
+	
+	private String indexDirectory;
+
+	public Indexer(String indexDirectory) {
+
 		try {
-			
-			File indexFileDir = new File("index");
-			System.out.println("indexFileDIr: " + indexFileDir.getAbsolutePath());
+			File indexFileDir = new File(indexDirectory);
+			this.indexDirectory = indexFileDir.getAbsolutePath();
+			System.out.println("Path to be indexed: " + indexFileDir.getAbsolutePath());
 			Directory dir = FSDirectory.open(indexFileDir);
-			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(
-					Version.LUCENE_47, new StandardAnalyzer(Version.LUCENE_47));
+			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(Version.LUCENE_47, new StandardAnalyzer(
+					Version.LUCENE_47));
 
 			indexWriter = new IndexWriter(dir, indexWriterConfig);
 
-			System.out.println("IndexWriter created");
+			System.out.println("IndexWriter created.");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void index() {
-
+	public void index(String path) {
+		try {
+			indexDocumentCollection(path);
+			indexWriter.close();
+			System.out.println("Indexing completed. \nIndex written to: " + indexDirectory);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void closeIndex() throws IOException {
-		System.out.println("closing writer");
-		indexWriter.close();
-	}
-
-	public void indexDocumentCollection(String path) throws IOException {
+	private void indexDocumentCollection(String path) throws IOException {
 		File root = new File(path);
 		File[] list = root.listFiles();
 
 		for (File file : list) {
 			if (file.isDirectory()) {
-				System.out.println("Indexing files in directory: "
-						+ file.getAbsoluteFile());
-//				String directoryPath = file.getAbsoluteFile().getAbsolutePath();
-//				// currentDocClassName =
-//				// generateCurrentDocClassName(directoryPath);
+				System.out.println("Indexing files in directory: " + file.getAbsoluteFile());
 				indexDocumentCollection(file.getAbsolutePath());
 			} else {
 				Document doc = new Document();
 
-				Field pathField = new StringField("file_path", file.getPath(),
-						Field.Store.YES);
+				Field pathField = new StringField("file_path", file.getPath(), Field.Store.YES);
 				doc.add(pathField);
 
-				BufferedReader buff = new BufferedReader(new InputStreamReader(
-						new FileInputStream(file), "UTF-8"));
+				BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
 				Field contentField = new TextField("file_content", buff);
 				doc.add(contentField);
 				indexWriter.addDocument(doc);
-
 			}
 		}
 	}
-
 }

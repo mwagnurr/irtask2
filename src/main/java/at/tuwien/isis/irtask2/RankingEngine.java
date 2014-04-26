@@ -1,9 +1,5 @@
 package at.tuwien.isis.irtask2;
 
-
-
-import java.io.IOException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.MissingOptionException;
@@ -12,8 +8,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 /**
- * Main class of the ranking engine, which indexes a document collection or performs searches on it
- * using a previously-generated index.
+ * Main class of the ranking engine, which indexes a document collection or performs searches on it using a
+ * previously-generated index.
  */
 public class RankingEngine {
 
@@ -26,7 +22,6 @@ public class RankingEngine {
 	 * CLI option for setting the input topics list
 	 */
 	private static final String TOPICS = "t";
-
 
 	/**
 	 * Path to the document index
@@ -60,29 +55,16 @@ public class RankingEngine {
 		CommandLineParser parser = new PosixParser();
 
 		try {
-
 			// Parse user arguments
 			CommandLine command = parser.parse(options, args);
 
 			if (command.hasOption(INDEXER)) {
-
-				System.out.println("starting to index that shit");
-				
-				Indexer bla = new Indexer();
-				
-				try {
-					bla.indexDocumentCollection(COLLECTION_PATH);
-					System.out.println("indexing done");
-					bla.closeIndex();
-					
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				
+				System.out.println("Creating index...");
+				Indexer indexer = new Indexer(INDEX_PATH);
+				indexer.index(COLLECTION_PATH);
 			} else if (command.hasOption(SEARCH)) {
 				System.out.println("sarching ok start");
-				
-				//TODO do search
+				// TODO do search
 			} else {
 				System.out.println("Invalid usage.");
 			}
