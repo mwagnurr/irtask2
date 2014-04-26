@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -13,6 +14,7 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -20,7 +22,7 @@ import org.apache.lucene.util.Version;
 public class Indexer {
 
 	private IndexWriter indexWriter;
-	
+
 	private String indexDirectory;
 
 	public Indexer(String indexDirectory) {
@@ -28,6 +30,7 @@ public class Indexer {
 		try {
 			File indexFileDir = new File(indexDirectory);
 			this.indexDirectory = indexFileDir.getAbsolutePath();
+
 			System.out.println("Path to be indexed: " + indexFileDir.getAbsolutePath());
 			Directory dir = FSDirectory.open(indexFileDir);
 			IndexWriterConfig indexWriterConfig = new IndexWriterConfig(Version.LUCENE_47, new StandardAnalyzer(

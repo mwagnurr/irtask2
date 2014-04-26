@@ -63,8 +63,8 @@ public class RankingEngine {
 				Indexer indexer = new Indexer(INDEX_PATH);
 				indexer.index(COLLECTION_PATH);
 			} else if (command.hasOption(SEARCH)) {
-				System.out.println("sarching ok start");
-				// TODO do search
+				System.out.println("Beginning search...");
+				SearchEngine search = new SearchEngine(INDEX_PATH);
 			} else {
 				System.out.println("Invalid usage.");
 			}
