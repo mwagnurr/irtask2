@@ -2,8 +2,6 @@ package at.tuwien.isis.irtask2;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.MissingOptionException;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
@@ -17,11 +15,6 @@ public class RankingEngine {
 	 * CLI option for running the indexer
 	 */
 	private static final String INDEXER = "i";
-
-	/**
-	 * CLI option for setting the input topics list
-	 */
-	private static final String TOPICS = "t";
 
 	/**
 	 * Path to the document index
@@ -39,6 +32,21 @@ public class RankingEngine {
 	private static final String SEARCH = "s";
 
 	/**
+	 * Name of the text field where document content is stored
+	 */
+	public static final String CONTENT = "content";
+	
+	/**
+	 * Name of the String field where document path is stored
+	 */
+	public static final String PATH = "path";
+
+	/**
+	 * Path to the topics
+	 */
+	public static final String TOPICS_PATH = "topics";
+
+	/**
 	 * Handle user arguments
 	 * 
 	 * @param args
@@ -49,8 +57,6 @@ public class RankingEngine {
 		Options options = new Options();
 		options.addOption(INDEXER, false, "run indexer");
 		options.addOption(SEARCH, false, "run search engine");
-		Option topics = new Option(TOPICS, true, "list of input topics");
-		options.addOption(topics);
 
 		CommandLineParser parser = new PosixParser();
 
@@ -64,27 +70,13 @@ public class RankingEngine {
 				indexer.index(COLLECTION_PATH);
 			} else if (command.hasOption(SEARCH)) {
 				System.out.println("Beginning search...");
-				SearchEngine search = new SearchEngine(INDEX_PATH);
+				SearchEngine searchEngine = new SearchEngine(INDEX_PATH);
+				searchEngine.search();
 			} else {
 				System.out.println("Invalid usage.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Retrieve the value of the topics option or throw an exception if it was not entered
-	 * 
-	 * @param command
-	 * @return
-	 * @throws MissingOptionException
-	 */
-	private static String getTopicList(CommandLine command) throws MissingOptionException {
-		if (command.hasOption(TOPICS)) {
-			return command.getOptionValue(TOPICS);
-		} else {
-			throw new MissingOptionException("Topic list was not specified. Please use the -" + TOPICS + " option");
 		}
 	}
 }

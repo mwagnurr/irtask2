@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -14,7 +13,6 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -64,13 +62,10 @@ public class Indexer {
 				indexDocumentCollection(file.getAbsolutePath());
 			} else {
 				Document doc = new Document();
+				doc.add(new StringField(RankingEngine.PATH, file.getPath(), Field.Store.YES));
+				doc.add(new TextField(RankingEngine.CONTENT, new BufferedReader(new InputStreamReader(
+						new FileInputStream(file), "UTF-8"))));
 
-				Field pathField = new StringField("file_path", file.getPath(), Field.Store.YES);
-				doc.add(pathField);
-
-				BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-				Field contentField = new TextField("file_content", buff);
-				doc.add(contentField);
 				indexWriter.addDocument(doc);
 			}
 		}
