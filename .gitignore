@@ -1,5 +1,6 @@
 # download collection seperately plx 
 collection/
+output
 
 index
 
@@ -39,3 +40,4 @@ local.properties
 
 
 /target
+

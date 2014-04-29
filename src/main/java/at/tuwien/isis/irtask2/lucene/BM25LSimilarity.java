@@ -12,12 +12,10 @@ import org.apache.lucene.search.similarities.Similarity;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.SmallFloat;
 
-
 public class BM25LSimilarity extends Similarity {
   private final float k1;
   private final float b;
   private final float delta;
-  // TODO: should we add a delta like sifaka.cs.uiuc.edu/~ylv2/pub/sigir11-bm25l.pdf ? NO WE SHOULDNT
 
   /**
    * BM25 with the supplied parameter values.
@@ -315,7 +313,7 @@ public class BM25LSimilarity extends Similarity {
 
   @Override
   public String toString() {
-    return "BM25(k1=" + k1 + ",b=" + b + ")";
+    return "BM25(k1=" + k1 + ",b=" + b  +",delta=" + delta + ")";
   }
   
   /** 

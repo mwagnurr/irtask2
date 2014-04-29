@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -22,6 +23,8 @@ import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
+import at.tuwien.isis.irtask2.lucene.BM25LSimilarity;
+
 public class SearchEngine {
 
 	private static int MAX_RESULT_COUNT = 100;
@@ -34,15 +37,31 @@ public class SearchEngine {
 		this.indexDirectory = indexDirectory;
 	}
 
-	public void search() throws IOException, ParseException {
+	public void search(float k1, float b, float delta) throws IOException,
+			ParseException {
 
-		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(indexDirectory)));
+		System.out.println("preparing Search with k1 = " + k1 + " , b = " + b
+				+ " and delta = " + delta);
+
+		IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(
+				indexDirectory)));
 		IndexSearcher searcher = new IndexSearcher(reader);
-		QueryParser parser = new QueryParser(Version.LUCENE_47, RankingEngine.CONTENT, new StandardAnalyzer(
-				Version.LUCENE_47));
+		QueryParser parser = new QueryParser(Version.LUCENE_47,
+				RankingEngine.CONTENT, new StandardAnalyzer(Version.LUCENE_47));
 
-		// TODO
-		searcher.setSimilarity(new BM25Similarity());
+
+		String runName = "";
+		if (delta <= 0) {
+			System.out.println("no delta, do normal BM25 Similarity..");
+
+			searcher.setSimilarity(new BM25Similarity(k1, b));
+			runName += "BM25-run";
+		} else {
+			System.out.println("delta = " + delta + " , do BM25L Similarity..");
+			searcher.setSimilarity(new BM25LSimilarity(k1, b, delta));
+			runName += "BM25L-run";
+		}
+		// searcher.setSimilarity(new BM25Similarity());
 
 		// Create list of all topics
 		ArrayList<String> topicList = new ArrayList<String>();
@@ -57,11 +76,17 @@ public class SearchEngine {
 		for (String topic : topicList) {
 
 			String topicPath = topicBasePath + topic;
+			System.out.println(topicPath);
+
+			//create output file path
+			String outputFilePath = "output/" + "k_" + k1 + "_b_" + b + "_d_"
+					+ delta + "/" + "exercise2_" + topic + "_group3" + ".txt";
 
 			File file = new File(topicPath);
 			System.out.println(file.getAbsolutePath());
 
-			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(topicPath), "UTF-8"));
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					new FileInputStream(topicPath), "UTF-8"));
 
 			String currentLine;
 			String line = "";
@@ -69,7 +94,8 @@ public class SearchEngine {
 
 			// escape special characters
 			while ((currentLine = in.readLine()) != null) {
-				tokenizer = new StringTokenizer(currentLine, "+ - && || ! ( ) { } [ ] ^ \" ~ * ? : \\ /");
+				tokenizer = new StringTokenizer(currentLine,
+						"+ - && || ! ( ) { } [ ] ^ \" ~ * ? : \\ /");
 				while (tokenizer.hasMoreTokens()) {
 					String currentWord = tokenizer.nextToken();
 					line += currentWord + " ";
@@ -77,7 +103,8 @@ public class SearchEngine {
 			}
 
 			Query query = parser.parse(line);
-			System.out.println("Searching for: " + query.toString(RankingEngine.CONTENT));
+			System.out.println("Searching for: "
+					+ query.toString(RankingEngine.CONTENT));
 
 			TopDocs results = searcher.search(query, MAX_RESULT_COUNT);
 			ScoreDoc[] hits = results.scoreDocs;
@@ -86,12 +113,16 @@ public class SearchEngine {
 
 			int count = Math.min(numTotalHits, MAX_RESULT_COUNT);
 
+			File outFile = new File(outputFilePath);
+			outFile.getParentFile().mkdirs();
+			PrintWriter writer = new PrintWriter(outFile);
+
 			for (int i = 0; i < count; i++) {
 
 				Document doc = searcher.doc(hits[i].doc);
 				String path = doc.get(RankingEngine.PATH);
 
-				// TODO topic Q0 document-id rank score run-name
+				// topic Q0 document-id rank score run-name
 
 				// Create output string for result
 				StringBuilder outputString = new StringBuilder();
@@ -101,7 +132,8 @@ public class SearchEngine {
 
 				// Append shortened path
 				int index = path.indexOf(COLLECTION_DIRECTORY);
-				String outputPath = path.substring(index + COLLECTION_DIRECTORY.length() + 1);
+				String outputPath = path.substring(index
+						+ COLLECTION_DIRECTORY.length() + 1);
 				outputString.append(outputPath + " ");
 
 				// Append rank
@@ -111,12 +143,18 @@ public class SearchEngine {
 				outputString.append(hits[i].score + " ");
 
 				// Append run name
-				outputString.append("TEST");
+				outputString.append(runName);
 
-				System.out.println(outputString.toString());
+				writer.write(outputString.toString());
+				writer.write("\n");
+
+				//System.out.println(outputString.toString());
 			}
 
 			in.close();
+			writer.close();
+			
+			System.out.println("result file for " + outputFilePath + " created");
 		}
 
 		reader.close();
