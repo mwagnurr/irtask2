@@ -214,7 +214,7 @@ public class BM25LSimilarity extends Similarity {
     public float score(int doc, float freq) {
       // if there are no norms, we act as if b=0
       float norm = norms == null ? k1 : cache[(byte)norms.get(doc) & 0xFF];
-      return weightValue * freq / (freq + norm);
+      return weightValue * freq / (freq + norm); //TODO change scoring calculation
     }
     
     @Override
@@ -304,7 +304,6 @@ public class BM25LSimilarity extends Similarity {
       //tfNormExpl.setValue((freq.getValue() * (k1 + 1)) / (freq.getValue() + k1 * (1 - b + b * doclen/stats.avgdl)));
       float foo = (1 - b + b * doclen/stats.avgdl);
       tfNormExpl.setValue(((freq.getValue() + (delta * foo)) * (k1 + 1)) / ((freq.getValue() + (delta * foo)) + k1 * foo));
-      
     }
     result.addDetail(tfNormExpl);
     result.setValue(boostExpl.getValue() * stats.idf.getValue() * tfNormExpl.getValue());
