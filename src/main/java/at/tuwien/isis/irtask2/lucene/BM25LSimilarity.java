@@ -186,7 +186,8 @@ public class BM25LSimilarity extends Similarity {
     // compute freq-independent part of bm25 equation across all norm values
     float cache[] = new float[256];
     for (int i = 0; i < cache.length; i++) {
-      cache[i] = k1 * ((1 - b) + b * decodeNormValue((byte)i) / avgdl);
+      //cache[i] = k1 * ((1 - b) + b * decodeNormValue((byte)i) / avgdl);
+    	cache[i] = ((1 - b) + b * decodeNormValue((byte)i) / avgdl);
     }
     return new BM25Stats(collectionStats.field(), idf, queryBoost, avgdl, cache);
   }
@@ -214,7 +215,15 @@ public class BM25LSimilarity extends Similarity {
     public float score(int doc, float freq) {
       // if there are no norms, we act as if b=0
       float norm = norms == null ? k1 : cache[(byte)norms.get(doc) & 0xFF];
-      return weightValue * freq / (freq + norm); //TODO change scoring calculation
+      
+      
+      // normalized TF.. c'(q,D) = c(q,D) / (1 - b + b * |D|/avdl)
+      float normFreq = freq / cache[(byte)norms.get(doc) & 0xFF];     
+      
+      // idf * (k1 + 1) * [c'(q,D) + delta] / (k1 + [c'(q,D) + delta])
+      return weightValue * (normFreq + delta) / (k1 + (normFreq + delta));
+      
+      //return weightValue * freq / (freq + norm); //TODO change scoring calculation
     }
     
     @Override
