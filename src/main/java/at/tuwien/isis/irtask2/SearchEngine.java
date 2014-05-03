@@ -19,7 +19,6 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
@@ -49,19 +48,18 @@ public class SearchEngine {
 		QueryParser parser = new QueryParser(Version.LUCENE_47,
 				RankingEngine.CONTENT, new StandardAnalyzer(Version.LUCENE_47));
 
-
 		String runName = "";
-		if (delta <= 0) {
-			System.out.println("no delta, do normal BM25 Similarity..");
-
-			searcher.setSimilarity(new BM25Similarity(k1, b));
+		
+		searcher.setSimilarity(new BM25LSimilarity(k1, b, delta));			
+		
+		if(delta ==0){
+			System.out.println("delta = 0, do normal BM25 Similarity");
 			runName += "BM25-run";
-		} else {
+		}else{
 			System.out.println("delta = " + delta + " , do BM25L Similarity..");
-			searcher.setSimilarity(new BM25LSimilarity(k1, b, delta));
 			runName += "BM25L-run";
 		}
-		// searcher.setSimilarity(new BM25Similarity());
+		
 
 		// Create list of all topics
 		ArrayList<String> topicList = new ArrayList<String>();

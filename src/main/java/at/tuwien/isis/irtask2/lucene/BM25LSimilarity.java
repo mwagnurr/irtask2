@@ -21,6 +21,7 @@ public class BM25LSimilarity extends Similarity {
    * BM25 with the supplied parameter values.
    * @param k1 Controls non-linear term frequency normalization (saturation).
    * @param b Controls to what degree document length normalizes tf values.
+   * @param delta is an additional parameter for BM25L similarity to boost long documents ( if delta = 0 it is normal BM25 similarity)
    */
   public BM25LSimilarity(float k1, float b, float delta) {
     this.k1 = k1;
@@ -214,9 +215,8 @@ public class BM25LSimilarity extends Similarity {
     @Override
     public float score(int doc, float freq) {
       // if there are no norms, we act as if b=0
-      float norm = norms == null ? k1 : cache[(byte)norms.get(doc) & 0xFF];
-      
-      
+      //float norm = norms == null ? k1 : cache[(byte)norms.get(doc) & 0xFF];
+        
       // normalized TF.. c'(q,D) = c(q,D) / (1 - b + b * |D|/avdl)
       float normFreq = freq / cache[(byte)norms.get(doc) & 0xFF];     
       
@@ -308,11 +308,11 @@ public class BM25LSimilarity extends Similarity {
       tfNormExpl.addDetail(new Explanation(stats.avgdl, "avgFieldLength"));
       tfNormExpl.addDetail(new Explanation(doclen, "fieldLength"));
       
-      //TODO check formular, where delta is exactly added
-      // BM25L:  term frequency not normalized, so formular changes a bit
       //tfNormExpl.setValue((freq.getValue() * (k1 + 1)) / (freq.getValue() + k1 * (1 - b + b * doclen/stats.avgdl)));
-      float foo = (1 - b + b * doclen/stats.avgdl);
-      tfNormExpl.setValue(((freq.getValue() + (delta * foo)) * (k1 + 1)) / ((freq.getValue() + (delta * foo)) + k1 * foo));
+      
+      float normFreq = freq.getValue() / (1 - b + b * doclen/stats.avgdl);
+      //tfNormExpl.setValue(((freq.getValue() + (delta * foo)) * (k1 + 1)) / ((freq.getValue() + (delta * foo)) + k1 * foo));
+      tfNormExpl.setValue(((normFreq + delta) * (k1 + 1)) / (k1 + (normFreq + delta)));
     }
     result.addDetail(tfNormExpl);
     result.setValue(boostExpl.getValue() * stats.idf.getValue() * tfNormExpl.getValue());

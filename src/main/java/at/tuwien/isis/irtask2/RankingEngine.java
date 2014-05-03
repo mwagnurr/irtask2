@@ -85,7 +85,7 @@ public class RankingEngine {
 				float b = command.hasOption(B_PARAM) ? Float.parseFloat(command
 						.getOptionValue(B_PARAM)) : 0.75f;
 				float delta = command.hasOption(DELTA_PARAM) ? Float
-						.parseFloat(command.getOptionValue(DELTA_PARAM)) : 0;
+						.parseFloat(command.getOptionValue(DELTA_PARAM)) : 0;						
 
 				searchEngine.search(k1, b, delta);
 			} else {
