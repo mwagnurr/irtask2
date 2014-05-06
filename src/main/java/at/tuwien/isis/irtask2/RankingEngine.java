@@ -6,8 +6,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 /**
- * Main class of the ranking engine, which indexes a document collection or
- * performs searches on it using a previously-generated index.
+ * Main class of the ranking engine, which indexes a document collection or performs searches on it using a
+ * previously-generated index.
  */
 public class RankingEngine {
 
@@ -46,6 +46,11 @@ public class RankingEngine {
 	 */
 	public static final String TOPICS_PATH = "topics";
 
+	/**
+	 * Name of the parameter used for enabling Lucene default similarity
+	 */
+	private static final String LUCENE_DEFAULT_SIMILARITY_PARAM = "l";
+
 	// parameters for BM25 similarity
 	private static final String K_PARAM = "k1";
 	private static final String B_PARAM = "b";
@@ -62,6 +67,7 @@ public class RankingEngine {
 		Options options = new Options();
 		options.addOption(INDEXER, false, "run indexer");
 		options.addOption(SEARCH, false, "run search engine");
+		options.addOption(LUCENE_DEFAULT_SIMILARITY_PARAM, false, "use Lucene default similarity");
 		options.addOption(K_PARAM, true, "k1 parameter for BM25 search");
 		options.addOption(B_PARAM, true, "b parameter for BM25 search");
 		options.addOption(DELTA_PARAM, true, "delta parameter for BM25L search");
@@ -80,14 +86,12 @@ public class RankingEngine {
 				System.out.println("Beginning search...");
 				SearchEngine searchEngine = new SearchEngine(INDEX_PATH);
 
-				float k1 = command.hasOption(K_PARAM) ? Float
-						.parseFloat(command.getOptionValue(K_PARAM)) : 1.2f;
-				float b = command.hasOption(B_PARAM) ? Float.parseFloat(command
-						.getOptionValue(B_PARAM)) : 0.75f;
-				float delta = command.hasOption(DELTA_PARAM) ? Float
-						.parseFloat(command.getOptionValue(DELTA_PARAM)) : 0;						
-
-				searchEngine.search(k1, b, delta);
+				float k1 = command.hasOption(K_PARAM) ? Float.parseFloat(command.getOptionValue(K_PARAM)) : 1.2f;
+				float b = command.hasOption(B_PARAM) ? Float.parseFloat(command.getOptionValue(B_PARAM)) : 0.75f;
+				float delta = command.hasOption(DELTA_PARAM) ? Float.parseFloat(command.getOptionValue(DELTA_PARAM)) : 0;
+				boolean useDefault = command.hasOption(LUCENE_DEFAULT_SIMILARITY_PARAM);
+				
+				searchEngine.search(useDefault, k1, b, delta);
 			} else {
 				System.out.println("Invalid usage.");
 			}
