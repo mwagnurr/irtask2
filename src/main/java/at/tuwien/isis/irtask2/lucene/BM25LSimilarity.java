@@ -212,19 +212,19 @@ public class BM25LSimilarity extends Similarity {
       this.norms = norms;
     }
     
-    @Override
-    public float score(int doc, float freq) {
-      // if there are no norms, we act as if b=0
-      //float norm = norms == null ? k1 : cache[(byte)norms.get(doc) & 0xFF];
-        
-      // normalized TF.. c'(q,D) = c(q,D) / (1 - b + b * |D|/avdl)
-      float normFreq = freq / cache[(byte)norms.get(doc) & 0xFF];     
-      
-      // idf * (k1 + 1) * [c'(q,D) + delta] / (k1 + [c'(q,D) + delta])
-      return weightValue * (normFreq + delta) / (k1 + (normFreq + delta));
-      
-      //return weightValue * freq / (freq + norm); //TODO change scoring calculation
-    }
+	@Override
+	public float score(int doc, float freq) {
+		//changed to BM25L calculation according to the paper
+		// normalized TF.. c'(q,D) = c(q,D) / (1 - b + b * |D|/avdl)
+		float normFreq = freq / cache[(byte) norms.get(doc) & 0xFF];
+
+		// idf * (k1 + 1) * [c'(q,D) + delta] / (k1 + [c'(q,D) + delta])
+		float score = 0;
+		if (normFreq > 0) {
+			score = weightValue * (normFreq + delta) / (k1 + (normFreq + delta));
+		}
+		return score;
+	}
     
     @Override
     public Explanation explain(int doc, Explanation freq) {
@@ -311,7 +311,6 @@ public class BM25LSimilarity extends Similarity {
       //tfNormExpl.setValue((freq.getValue() * (k1 + 1)) / (freq.getValue() + k1 * (1 - b + b * doclen/stats.avgdl)));
       
       float normFreq = freq.getValue() / (1 - b + b * doclen/stats.avgdl);
-      //tfNormExpl.setValue(((freq.getValue() + (delta * foo)) * (k1 + 1)) / ((freq.getValue() + (delta * foo)) + k1 * foo));
       tfNormExpl.setValue(((normFreq + delta) * (k1 + 1)) / (k1 + (normFreq + delta)));
     }
     result.addDetail(tfNormExpl);
